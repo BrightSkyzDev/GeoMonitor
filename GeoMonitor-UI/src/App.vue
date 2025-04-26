@@ -3,8 +3,11 @@ import { ref } from 'vue';
 import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet';
 import "leaflet/dist/leaflet.css";
 
+
 const zoom = ref(4);
 const center = ref<[number, number]>([40, 0]);
+
+
 
 
 const earthquakes = ref([
