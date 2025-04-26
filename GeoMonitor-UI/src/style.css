@@ -1,0 +1,30 @@
+:root {
+  color: rgba(255, 255, 255, 0.87);
+  background-color: 	#0a0f1e;
+}
+
+/* body override */
+body {
+  background-color: 	#0a0f1e  !important;
+}
+
+/* navbar border */
+.navbar {
+  border-bottom: 2px solid rgb(113, 113, 113);
+}
+
+.navbar .navbar-brand {
+  font-weight: bold;
+  font-size: 1.8rem;
+}
+
+.custom-navbar {
+  background-color: 	#0a1128;
+  color: #cdc9c9;
+  border-bottom: 2px solid #717171;
+}
+
+.sidebar-header {
+  color: white;
+}
+
