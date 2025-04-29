@@ -1,38 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet';
 import "leaflet/dist/leaflet.css";
-
+import { fetchEarthquakeData } from './backend/fetchEarthquakeData'
 
 const zoom = ref(4);
 const center = ref<[number, number]>([40, 0]);
 
+const apiTimeout: number = 60000;
 
 
+const earthquakes = ref<any>([]);
 
-const earthquakes = ref([
-  {
-    id: 1,
-    title: 'Earthquake 1',
-    magnitude: 5.0,
-    location: 'Location 1',
-    date: '2023-10-01',
-  },
-  {
-    id: 2,
-    title: 'Earthquake 2',
-    magnitude: 6.5,
-    location: 'Location 2',
-    date: '2023-10-02',
-  },
-  {
-    id: 3,
-    title: 'Earthquake 3',
-    magnitude: 4.8,
-    location: 'Location 3',
-    date: '2023-10-03',
-  },
-]);
+onMounted(async () => {
+  earthquakes.value = await fetchEarthquakeData();;
+});
+
+
   
 </script>
 
@@ -80,11 +64,11 @@ const earthquakes = ref([
           class="card bg-dark text-white mb-3"
         >
           <div class="card-body">
-            <h5 class="card-title">{{ earthquake.title }}</h5>
+            <h5 class="card-title">{{ earthquake.properties.title }}</h5>
             <p class="card-text">
-              Magnitude: {{ earthquake.magnitude }}<br />
-              Location: {{ earthquake.location }}<br />
-              Date: {{ earthquake.date }}
+              Magnitude: {{ earthquake.properties.mag }}<br />
+              Location: {{ earthquake.properties.place }}<br />
+              Date: {{ earthquake.properties.convertedTime() }}
             </p>
           </div>
         </div>
