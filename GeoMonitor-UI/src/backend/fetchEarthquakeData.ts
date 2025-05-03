@@ -1,8 +1,6 @@
 import {Properties} from "./Properties"
 import {Geometry} from "./Geometry"
 
-
-
 async function getData() {
     const response = await fetch(`https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson`)
     const data = await response.json();
@@ -12,7 +10,7 @@ async function getData() {
 export async function fetchEarthquakeData() {
     const pollData = await getData();
 
-    const earthquakes: any[] = [];
+    let earthquakes: any[] = [];
 
     pollData.features.forEach((feature: any) => {
 
@@ -22,7 +20,7 @@ export async function fetchEarthquakeData() {
         let propertiesType: string = feature.properties.type;
         let sig: number = feature.properties.sig;
 
-        const quakeProps: Properties = new Properties(mag, place, time, propertiesType, sig);
+        let quakeProps: Properties = new Properties(mag, place, time, propertiesType, sig);
 
 
         let geometryType = feature.geometry.type;

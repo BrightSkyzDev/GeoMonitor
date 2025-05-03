@@ -1,23 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet';
+import { LMap, LTileLayer, LMarker, LCircleMarker } from '@vue-leaflet/vue-leaflet';
 import "leaflet/dist/leaflet.css";
+
 import { fetchEarthquakeData } from './backend/fetchEarthquakeData'
 
 const zoom = ref(4);
 const center = ref<[number, number]>([40, 0]);
-
 const apiTimeout: number = 60000;
 
-
-const earthquakes = ref<any>([]);
+let earthquakes = ref<any>([]);
 
 onMounted(async () => {
-  earthquakes.value = await fetchEarthquakeData();;
-});
-
-
-  
+  earthquakes.value = await fetchEarthquakeData();
+});  
 </script>
 
 <template>
@@ -51,9 +47,9 @@ onMounted(async () => {
     </div>
   </nav>
 
-  <div class="container-fluid" style="margin-top: 30px">
+  <div class="container-fluid" style="margin: 30px">
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-4 sidebar">
         <div class="sidebar-header">
           <h2>Recent Earthquakes</h2>
         </div>
@@ -61,7 +57,7 @@ onMounted(async () => {
         <div
           v-for="earthquake in earthquakes"
           :key="earthquake.id"
-          class="card bg-dark text-white mb-3"
+          class="card text-white mb-3"
         >
           <div class="card-body">
             <h5 class="card-title">{{ earthquake.properties.title }}</h5>
@@ -76,10 +72,16 @@ onMounted(async () => {
 
       <div class="col-md-8">
         <l-map
-          ref="map" v-model:zoom="zoom" v-model:center="center" :useGlobalLeaflet="false" style="height: 500px; width: 100%;">
+          ref="map" v-model:zoom="zoom" v-model:center="center" :useGlobalLeaflet="false" style="height: 800px; width: 100%;">
           <l-tile-layer
-            url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
-             </l-tile-layer>
+            url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"/>
+            <l-circle-marker v-for="earthquake in earthquakes" 
+            :key="earthquake.id"
+            :lat-lng=" [earthquake.geometry.latitude, earthquake.geometry.longitude]"
+            :radius="4"
+            :color="'#FFA63D'"
+            :fillColor="'#FFA63D'"
+            :fill-opacity="1"/>                    
         </l-map>
       </div>
     </div>
@@ -87,4 +89,32 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+ .sidebar {
+  height: 800px;
+  padding: 10px;
+  overflow-y: auto;
+  border: 2px solid rgb(33, 33, 52);
+  border-radius: 8px;
+  }
+
+.sidebar-header h2 {
+  color: white;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.2rem
+}
+
+.card {
+  background-color:rgb(24, 24, 34);
+  border: none;
+  margin-bottom: 1rem;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  background-color:rgb(26, 27, 48);
+
+}
+
 </style>
