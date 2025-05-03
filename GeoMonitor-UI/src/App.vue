@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue';
 import { LMap, LTileLayer, LMarker, LCircleMarker } from '@vue-leaflet/vue-leaflet';
 import "leaflet/dist/leaflet.css";
-
 import { fetchEarthquakeData } from './backend/fetchEarthquakeData'
 
 const zoom = ref(4);
@@ -13,6 +12,12 @@ let earthquakes = ref<any>([]);
 
 onMounted(async () => {
   earthquakes.value = await fetchEarthquakeData();
+  
+  let firstEarthquake = earthquakes.value[0];
+  if (firstEarthquake) {
+    center.value = [firstEarthquake.geometry.latitude, firstEarthquake.geometry.longitude];
+  }
+
 });  
 </script>
 
@@ -72,7 +77,11 @@ onMounted(async () => {
 
       <div class="col-md-8">
         <l-map
-          ref="map" v-model:zoom="zoom" v-model:center="center" :useGlobalLeaflet="false" style="height: 800px; width: 100%;">
+          v-if="earthquakes.length > 0" 
+          ref="map" v-model:zoom="zoom" 
+          v-model:center="center" 
+          :useGlobalLeaflet="false" 
+          style="height: 800px; width: 100%;">
           <l-tile-layer
             url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"/>
             <l-circle-marker v-for="earthquake in earthquakes" 
