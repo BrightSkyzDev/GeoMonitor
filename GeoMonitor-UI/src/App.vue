@@ -62,16 +62,13 @@ onMounted(async () => {
         <div
           v-for="earthquake in earthquakes"
           :key="earthquake.id"
-          class="card text-white mb-3"
+          class="card quake-card text-white mb-3"
         >
-          <div class="card-body">
-            <h5 class="card-title">{{ earthquake.properties.title }}</h5>
-            <p class="card-text">
-              Magnitude: {{ earthquake.properties.mag }}<br />
-              Location: {{ earthquake.properties.place }}<br />
-              Date: {{ earthquake.properties.convertedTime() }}
-            </p>
-          </div>
+        <div class="magnitude">{{ earthquake.properties.mag.toFixed(1) }}</div>
+        <div class="quake-info">
+         <div class="location">{{ earthquake.properties.place }}</div>
+         <div class="date">{{ earthquake.properties.convertedTime() }}</div>
+        </div>
         </div>
       </div>
 
@@ -107,12 +104,58 @@ onMounted(async () => {
   }
 
 .sidebar-header h2 {
-  color: white;
+  color: #fff;
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
   font-size: 1.2rem
 }
 
+.quake-card {
+  background-color: rgb(24, 24, 34);
+  color: #fff;
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  align-items: start;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  gap: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.quake-card:hover {
+  background-color: #6e6e6e;
+}
+
+.magnitude {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #FFA63D;
+  width: 50px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.quake-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.location {
+  font-weight: 500;
+
+}
+
+.date {
+  font-size: 16px;
+  font-weight: 200;
+}
+
+
+
+/*
 .card {
   background-color:rgb(24, 24, 34);
   border: none;
@@ -125,5 +168,5 @@ onMounted(async () => {
   background-color:rgb(26, 27, 48);
 
 }
-
+*/
 </style>
