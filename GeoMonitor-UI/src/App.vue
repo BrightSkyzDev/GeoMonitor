@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { LMap, LTileLayer, LMarker, LCircleMarker } from '@vue-leaflet/vue-leaflet';
+import { LMap, LTileLayer, LMarker, LCircleMarker, LPopup } from '@vue-leaflet/vue-leaflet';
 import "leaflet/dist/leaflet.css";
 import { fetchEarthquakeData } from './backend/fetchEarthquakeData'
 
@@ -19,6 +19,11 @@ onMounted(async () => {
   }
 
 });  
+
+function zoomToEarthquake(lat: number, lng: number) {
+  zoom.value = 8;
+  center.value = [lat, lng];
+}
 </script>
 
 <template>
@@ -63,6 +68,7 @@ onMounted(async () => {
           v-for="earthquake in earthquakes"
           :key="earthquake.id"
           class="card quake-card text-white mb-3"
+          @click="zoomToEarthquake(earthquake.geometry.latitude, earthquake.geometry.longitude)"
         >
         <div class="magnitude">{{ earthquake.properties.mag.toFixed(1) }}</div>
         <div class="quake-info">
@@ -81,13 +87,22 @@ onMounted(async () => {
           style="height: 800px; width: 100%;">
           <l-tile-layer
             url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"/>
-            <l-circle-marker v-for="earthquake in earthquakes" 
+          <l-circle-marker v-for="earthquake in earthquakes" 
             :key="earthquake.id"
             :lat-lng=" [earthquake.geometry.latitude, earthquake.geometry.longitude]"
             :radius="4"
             :color="'#FFA63D'"
             :fillColor="'#FFA63D'"
-            :fill-opacity="1"/>                    
+            :fillOpacity="1"
+            @click="zoomToEarthquake(earthquake.geometry.latitude, earthquake.geometry.longitude)">
+          
+            <l-popup>
+              Lat: {{ earthquake.geometry.latitude }}<br>
+              Long:{{ earthquake.geometry.longitude }}<br>
+              Location: {{ earthquake.properties.place }}
+           </l-popup>
+          </l-circle-marker>
+            
         </l-map>
       </div>
     </div>
@@ -96,7 +111,8 @@ onMounted(async () => {
 
 <style scoped>
  .sidebar {
-  height: 800px;
+  height: 100%;
+  max-height: 400px;
   padding: 10px;
   overflow-y: auto;
   border: 2px solid rgb(33, 33, 52);
@@ -121,7 +137,7 @@ onMounted(async () => {
   border: none;
   gap: 10px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.5s ease;
 }
 
 .quake-card:hover {
@@ -153,20 +169,4 @@ onMounted(async () => {
   font-weight: 200;
 }
 
-
-
-/*
-.card {
-  background-color:rgb(24, 24, 34);
-  border: none;
-  margin-bottom: 1rem;
-  transition: background-color 0.3s ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  background-color:rgb(26, 27, 48);
-
-}
-*/
 </style>
