@@ -2,7 +2,7 @@ import {Properties} from "./Properties"
 import {Geometry} from "./Geometry"
 
 async function getData() {
-    const response = await fetch(`https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson`)
+    const response = await fetch(`https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson`)
     const data = await response.json();
     return data;
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { LMap, LTileLayer, LMarker, LCircleMarker, LPopup } from '@vue-leaflet/vue-leaflet';
 import "leaflet/dist/leaflet.css";
 import { fetchEarthquakeData } from './backend/fetchEarthquakeData'
@@ -7,18 +7,37 @@ import { fetchEarthquakeData } from './backend/fetchEarthquakeData'
 const zoom = ref(4);
 const center = ref<[number, number]>([40, 0]);
 const apiTimeout: number = 60000;
+const searchQuery = ref('');
 
 let earthquakes = ref<any>([]);
+let hasEarthquakes = ref(false);
 
-onMounted(async () => {
+
+async function updateEarthquakes() {
   earthquakes.value = await fetchEarthquakeData();
-  
-  let firstEarthquake = earthquakes.value[0];
-  if (firstEarthquake) {
-    center.value = [firstEarthquake.geometry.latitude, firstEarthquake.geometry.longitude];
-  }
 
-});  
+  let firstEarthquake = earthquakes.value[0];
+  if (!hasEarthquakes.value && firstEarthquake) {
+    center.value = [firstEarthquake.geometry.latitude, firstEarthquake.geometry.longitude];
+    hasEarthquakes.value = true;
+  }
+}
+
+  let filteredEarthquakes = computed(() => {
+    if (searchQuery.value) {
+      return earthquakes.value.filter((earthquake: any) =>
+        earthquake.properties.place.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
+    }
+    return earthquakes.value;
+  });
+
+onMounted(() => {
+  updateEarthquakes();
+  setInterval(() => {
+    updateEarthquakes();
+  }, apiTimeout);
+});
 
 function zoomToEarthquake(lat: number, lng: number) {
   zoom.value = 8;
@@ -62,10 +81,13 @@ function zoomToEarthquake(lat: number, lng: number) {
       <div class="col-md-4 sidebar">
         <div class="sidebar-header">
           <h2>Recent Earthquakes</h2>
-        </div>
+          <p>Results ({{filteredEarthquakes.length}})</p>
 
+          <input v-model="searchQuery" type="text" class="form-control form-control-sm mb-3" placeholder="Search by location..." />
+        </div>
+       <div class="earthquake-list-container">
         <div
-          v-for="earthquake in earthquakes"
+          v-for="earthquake in filteredEarthquakes"
           :key="earthquake.id"
           class="card quake-card text-white mb-3"
           @click="zoomToEarthquake(earthquake.geometry.latitude, earthquake.geometry.longitude)"
@@ -75,8 +97,9 @@ function zoomToEarthquake(lat: number, lng: number) {
          <div class="location">{{ earthquake.properties.place }}</div>
          <div class="date">{{ earthquake.properties.convertedTime() }}</div>
         </div>
-        </div>
-      </div>
+       </div>
+     </div>
+    </div> 
 
       <div class="col-md-8">
         <l-map
@@ -84,7 +107,7 @@ function zoomToEarthquake(lat: number, lng: number) {
           ref="map" v-model:zoom="zoom" 
           v-model:center="center" 
           :useGlobalLeaflet="false" 
-          style="height: 800px; width: 100%;">
+          style="height: 800px; width: 95%;">
           <l-tile-layer
             url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"/>
           <l-circle-marker v-for="earthquake in earthquakes" 
@@ -106,24 +129,43 @@ function zoomToEarthquake(lat: number, lng: number) {
         </l-map>
       </div>
     </div>
-  </div>
+   </div> 
 </template>
 
 <style scoped>
  .sidebar {
-  height: 100%;
-  max-height: 400px;
+  height: 800px;
   padding: 10px;
   overflow-y: auto;
   border: 2px solid rgb(33, 33, 52);
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
   }
+
+.sidebar-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid #333;
+  background-color: #0a0f1e;
+}
+
+.earthquake-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 10px;
+}
 
 .sidebar-header h2 {
   color: #fff;
-  padding-bottom: 0.5rem;
-  margin-bottom: 1rem;
+  padding-bottom: 0;
+  margin-bottom: .5rem;
   font-size: 1.2rem
+}
+
+.sidebar-header p {
+  font-size: 12px;
 }
 
 .quake-card {
